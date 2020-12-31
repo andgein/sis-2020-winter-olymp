@@ -1,3 +1,5 @@
+import re
+
 from django.contrib.auth.models import User
 from django.core import validators
 from django.db import models
@@ -27,7 +29,9 @@ class Problem(models.Model):
     def check_answer(self, output: str) -> bool:
         output = output.strip()
         if self.checker == "" or self.checker is None:
-            return output == self.answer.strip()
+            output = re.sub(r"\s{2,}", " ", output.strip())
+            answer = re.sub(r"\s{2,}", " ", self.answer.strip())
+            return output == answer
 
         try:
             vars = {}
