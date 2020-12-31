@@ -5,6 +5,10 @@
 
     <h1 class="ml-2">{{ contest.name }}</h1>
 
+    <p>
+        <a href="{% url "contest" contest_id=contest.id %}">← вернуться на главную</a>
+    </p>
+
     <div class="monitor">
         <table>
             <thead>

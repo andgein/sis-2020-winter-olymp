@@ -239,7 +239,7 @@ def sabotage(request, contest_id: int, sabotage_id: int):
                 answer = form.cleaned_data["answer"]
                 is_correct = False
                 if type(sabotage) is models.SolveTaskSabotage:
-                    is_correct = answer.strip() == sabotage.correct_answer
+                    is_correct = answer.strip().lower() == sabotage.correct_answer.strip().lower()
 
                 solution = models.SabotageSolution(
                     contest=contest,
