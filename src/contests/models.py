@@ -17,7 +17,7 @@ class Problem(models.Model):
 
     statement = models.TextField(help_text="Условие задачи, поддерживается HTML")
 
-    input_data = models.TextField(help_text="Входные данные")
+    input_data = models.TextField(help_text="Входные данные", blank=True)
 
     answer = models.TextField(help_text="Правильный ответ")
 
@@ -119,7 +119,7 @@ class AbstractSabotage(PolymorphicModel):
         verbose_name_plural = "sabotages"
 
     def __str__(self):
-        return f"{self.id}. {self.user} саботаж против {list(self.users.all())}: {self.start_time} → {self.finish_time}"
+        return f"{self.id}. {self.user.first_name} саботаж против {list(self.users.all())}: {self.start_time} → {self.finish_time}"
 
 
 class CloseSubmissionSabotage(AbstractSabotage):
