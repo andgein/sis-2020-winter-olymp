@@ -85,6 +85,11 @@ body {
 }
 
 #content {
+    background-attachment: fixed;
+}
+
+.monitor-page #content {
+    width: auto;
     min-width: 100%;
 }
 

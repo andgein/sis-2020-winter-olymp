@@ -17,15 +17,14 @@
 </head>
 <body>
 
-<div class="wrapper d-flex align-items-stretch">
+<div class="wrapper d-flex align-items-stretch {% block class %}{% endblock %}">
     {% block panel %}
 
     {% endblock %}
 
-    <div id="content" class="p-4 p-md-5 pt-5" style="background-image: url('{% static "contests/images/background.jpg" %}'); background-size: contain">
+    <div id="content" class="p-4 p-md-5 pt-5" style="background-image: url('{% static "contests/images/background.jpg" %}'); ">
         {% block body %}
         {% endblock %}
-
     </div>
 </div>
 
