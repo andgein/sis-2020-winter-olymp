@@ -1,0 +1,245 @@
+{% extends "contests/base.html" %}
+
+{% load static %}
+{% load contests %}
+{% load tz %}
+
+{% block panel %}
+    <nav id="sidebar" class="order-last" style="background-image: url('{% static "contests/images/sidebar_background.jpg" %}'); background-size: cover">
+        <div class="">
+            <div class="close-door-panel">
+                <div class="sidebar-button sidebar-button-back">
+                    ← Назад
+                </div>
+
+                <h1>Закрыть двери</h1>
+
+                <div class="pl-4 mb-4">
+                    Вы можете закрыть возможность отправлять решения на 10 минут.
+                </div>
+
+                <div class="pl-4">
+                    <form method="POST" action="{% url "close_submission" contest_id=contest.id %}">
+                        {% csrf_token %}
+                        {% if close_submission_error %}
+                            <p class="panel-error" style="color: red">
+                                {{ close_submission_error }}
+                                <script type="text/javascript">$(document).ready(function() {$(".close-door-button").click();})</script>
+                            </p>
+                        {% endif %}
+                        <p>
+                            <select class="multiselect close-submission-team-selection" name="users">
+                                <option value="">Выберите команду-жертву</option>
+                                {% for user in users %}
+                                    <option value="{{ user.id }}">{{ user.first_name|default:user.username }}</option>
+                                {% endfor %}
+                            </select>
+                        </p>
+                        <button type="submit" class="btn btn-danger">Закрыть двери</button>
+                    </form>
+                </div>
+            </div>
+
+            <div class="sabotage-panel">
+                <div class="sidebar-button sidebar-button-back">
+                    ← Назад
+                </div>
+
+                <h1>Устроить саботаж</h1>
+
+                <div class="pl-4 mb-4">
+                    Вы можете устроить ещё {{ available_sabotages_count }} саботажей. Во время саботажа выбранным вами командам
+                    придётся за ограниченное время решить задание. Те, кто справится, получат дополнительные очки. Те, кто не справятся или откажутся от выполнения
+                    задания, потеряют очки и в то же время принесут их вам.
+                </div>
+
+                <div class="pl-4">
+                    <form method="POST" action="{% url "create_sabotage" contest_id=contest.id %}">
+                        {% csrf_token %}
+                        {% if create_sabotage_error %}
+                            <p class="panel-error" style="color: red">
+                                {{ create_sabotage_error }}
+                                <script type="text/javascript">$(document).ready(function() {$(".sabotage-button").click();})</script>
+                            </p>
+                        {% endif %}
+                        <p>
+                            <select class="multiselect sabotage-team-selection" multiple="multiple" data-maximum="{{ contest.max_sabotage_users }}" name="users">
+                                {% for user in users %}
+                                    <option value="{{ user.id }}">{{ user.first_name|default:user.username }}</option>
+                                {% endfor %}
+                            </select>
+                        </p>
+                        <button type="submit" class="btn btn-danger">Устроить саботаж</button>
+                    </form>
+                </div>
+            </div>
+
+            <div class="main-panel">
+                <h1>
+                    {{ contest.name }}
+                </h1>
+                <div class="mb-5 pl-4">
+                    <a href="{% url "monitor" contest_id=contest.id %}">Смотреть монитор</a>,
+                    <a href="{% url "rules" %}">напомнить правила</a>,
+                    <a href="https://www.youtube.com/watch?v=dQw4w9WgXcQ" target="_blank">заняться делом</a>.
+                </div>
+
+                <div class="pl-4">
+
+                    <hr>
+
+                    <p>
+                        Вы можете закрыть двери на 10 минут для <b>{{ available_close_submissions_count }} команд</b>.
+                        Такое право можно получить за каждую правильно сданную задачу.
+                        <a data-toggle="tooltip" title="Подробнее читайте в&nbsp;правилах"><span class="fa fa-question-circle"></span></a>
+                    </p>
+                    {% if available_close_submissions_count > 0 %}
+                        <div class="sidebar-button close-door-button">
+                            Закрыть кому-нибудь двери →
+                        </div>
+                    {% endif %}
+
+                    {% if own_closed_submissions %}
+                        <div class="mt-4">
+                            <b>Вы закрывали двери:</b>
+                            {% for sabotage in own_closed_submissions|slice:":3" %}
+                                <p class="mb-0">
+                                    {% with sabotage.users.all|first as user %}
+                                        {{ forloop.counter }}. Команде «{{ user.first_name|default:user.username }}» c {{ sabotage.start_time|localtime|date:"H:i:s" }} до {{ sabotage.finish_time|localtime|date:"H:i:s" }}.
+                                    {% endwith %}
+                                </p>
+                            {% endfor %}
+                            {% if own_closed_submissions|length > 3 %}
+                                ...
+                            {% endif %}
+                        </div>
+                    {% endif %}
+
+                    <hr>
+
+                    <p>
+                        Вам доступно <b>{{ available_sabotages_count }} саботажей</b>. Вы получаете право выполнить саботаж
+                        против других команд, когда сдаёте задачу с первой попытки.
+                        <a  data-toggle="tooltip" title="Подробнее читайте в&nbsp;правилах"><span class="fa fa-question-circle"></span></a>
+                    </p>
+                    {% if available_sabotages_count > 0%}
+                        <div class="sidebar-button sabotage-button">
+                            Устроить кому-нибудь саботаж →
+                        </div>
+                    {% endif %}
+
+                    {% if own_sabotages %}
+                        <div class="mt-4">
+                            <b>Вы устраивали саботажи:</b>
+                            {% for sabotage in own_sabotages %}
+                                <p class="mb-0">
+                                    {{ forloop.counter }}.
+                                    Командам {% for user in sabotage.users.all %}«{{ user.first_name|default:user.username }}»{% if not forloop.last %}, {% endif %}{% endfor %}
+                                    c {{ sabotage.start_time|localtime|date:"H:i:s" }} до {{ sabotage.finish_time|localtime|date:"H:i:s" }}.
+                                </p>
+                            {% endfor %}
+                        </div>
+                    {% endif %}
+
+                    <hr>
+                </div>
+            </div>
+        </div>
+    </nav>
+{% endblock %}
+
+{% block body %}
+    <div class="map-wrapper">
+        {% for problem in problems %}
+            <div class="problem-on-map {% if problem in solved_problems %}solved{% endif %}"
+                 style="left: calc({{ problem.x }}px); top: calc({{ problem.y }}px)"
+                 data-problem-index="{{ problem.index }}"
+                 data-problem-name="{{ problem.name }}"
+                 data-problem-id="{{ problem.id }}"
+                 data-statement="{{ problem.statement }}"
+                 data-input-data-link="{% url "problem_input" contest_id=contest.id problem_id=problem.id %}"
+                 data-max-score="{{ problem.max_score }}"
+            >
+                {{ problem.index }}
+            </div>
+        {% endfor %}
+
+        <div class="map">
+            <img src="{% static "contests/images/map.png" %}" alt="Map">
+        </div>
+    </div>
+
+    <div class="modal problem-modal" tabindex="-1" role="dialog">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title problem-name"></h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <h3>Условие</h3>
+                    <div class="problem-statement">
+
+                    </div>
+                    <div class="problem-input-data-link">
+                        <a href="">Скачать входные данные</a>
+                    </div>
+
+                    <h3 class="mt-4">Отправить ответ</h3>
+
+                    <div class="problem-status">
+                        {% if is_correct is not None %}
+                            {% if is_correct %}
+                                <p style="color: green">
+                                    Правильный ответ, поздравляем!
+                                </p>
+                            {% else %}
+                                <p style="color: red">
+                                    Это неправильный ответ, попробуйте ещё раз.
+                                </p>
+                            {% endif %}
+                        {% endif %}
+                        {% if error is not None and error != "" %}
+                            <p style="color: red">
+                                {{ error }}
+                            </p>
+                        {% endif %}
+                    </div>
+
+                    {% if close_submission_sabotages|get_item:problem.id %}
+                        <div>
+                            <b>Вы не можете отправлять задачу — вам «закрыли дверь» до {% with close_submission_sabotages|get_item:problem.id|first as sabotage %}{{ sabotage.finish_time|localtime|date:"H:i:s" }}{% endwith %}
+                        </div>
+                    {% else %}
+                        <form method="POST" data-url-template="{% url "problem" contest_id=contest.id problem_id=0 %}" enctype="multipart/form-data">
+                            {% csrf_token %}
+                            <p>
+                                Выберите файл с&nbsp;ответом:
+                                <input class="form-control form-control-file" type="file" name="file" required="" id="id_file">
+                            </p>
+
+                            <button type="submit" class="btn btn-primary">Отправить</button>
+                        </form>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+
+    {% if selected_problem %}
+        <script type="text/javascript">
+            $(document).ready(function() {
+               $(".problem-on-map[data-problem-id={{ selected_problem.id }}]").click();
+            });
+        </script>
+    {% endif %}
+
+    <script type="text/javascript">
+        $(document).ready(function() {
+            setInterval(function() { checkSabotages({{ contest.id }}); }, 10000);
+        })
+    </script>
+
+{% endblock %}

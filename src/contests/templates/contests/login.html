@@ -1,0 +1,20 @@
+{% extends "contests/base.html" %}
+
+{% block body %}
+    <h1><span style="text-decoration: line-through;">Among us</span> Новогодняя олимпиада ЛКШ</h1>
+    <form action="{% url "login" %}" method="POST">
+        {% csrf_token %}
+        <p>
+            <input type="text" name="login" placeholder="Выданный логин" required autofocus size="30">
+        </p>
+        <p>
+            <input type="password" name="password" placeholder="Пароль" required size="30">
+        </p>
+        {% if error %}
+            <p style="color: #870E0E">
+                <b>{{ error }}</b>
+            </p>
+        {% endif %}
+        <button type="submit" class="btn btn-success">Войти</button>
+    </form>
+{% endblock %}

@@ -1,0 +1,44 @@
+{% extends "contests/base.html" %}
+{% load contests %}
+
+{% block body %}
+
+    <h1 class="ml-2">{{ contest.name }}</h1>
+
+    <div class="monitor">
+        <table>
+            <thead>
+                <tr>
+                    <th></th>
+                    <th>Команда</th>
+                    {% for problem in problems %}
+                        <th>{{ problem.index }}</th>
+                    {% endfor %}
+                    <th>Саботажи</th>
+                    <th>Очки</th>
+                </tr>
+            </thead>
+        {% for user in users %}
+            <tr class="{% if user == request.user %}current{% endif %} {% if closed_submission|get_item:user.id %}closed-submissions{% endif %}">
+                <td>{{ forloop.counter }}</td>
+                <td>{{ user.first_name|default:user.username }}<br>{{ user.last_name }}</td>
+                {% for problem in problems %}
+                    <td class="{% if problem.id in closed_submission|get_item:user.id %}closed{% endif %}">
+                        {% if problem.id in has_success_tries|get_item:user.id %}
+                            {{ user_problem_score|get_item:user.id|get_item:problem.id }}
+                        {% elif problem.id in has_tries|get_item:user.id %}
+                            <span title="{{ non_success_tries_count|get_item:user.id|get_item:problem.id }} попыток">&ndash;</span>
+                        {% endif %}
+                    </td>
+                {% endfor %}
+                <td>
+                    {% if sabotage_score|get_item:user_id >= 0%}+{% endif %}{{ sabotage_score|get_item:user.id }}
+                </td>
+                <td>
+                    {{ user_score|get_item:user.id }}
+                </td>
+            </tr>
+        {% endfor %}
+        </table>
+    </div>
+{% endblock %}

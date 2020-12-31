@@ -1,0 +1,62 @@
+{% extends "contests/base.html" %}
+{% load tz %}
+{% load contests %}
+
+{% block body %}
+    <h2>Саботаж на корабле!</h2>
+
+    <p>
+        Команда {{ sabotage.user.first_name|default:sabotage.user.username }} устроила вам саботаж.
+        Вы должны решить дополнительное задание до {{ sabotage.finish_time|localtime|date:"H:i:s" }}.<br>
+        За правильное решение вы получите <b>{{ sabotage.score }} баллов</b>, за неправильное потеряете столько же.
+        И помните — у вас только одна попытка.
+    </p>
+
+    {% if not already_submitted %}
+        <form action="{% url "sabotage" contest_id=contest.id sabotage_id=sabotage.id %}" method="POST">
+            {% csrf_token %}
+            <input type="hidden" name="answer" value="<skipped>">
+            Вы можете <button type="submit" class="btn btn-danger btn-sm">игнорировать</button> саботаж.
+            В этом случае <b>вы потеряете {{ sabotage.score }} баллов, но получите возможность решать задачи дальше.</b>
+        </form>
+    {% endif %}
+
+    {% if sabotage|class_name == "SolveTaskSabotage" %}
+        <div>
+            <h2 class="mt-5">Задание</h2>
+            {{ sabotage.statement }}
+        </div>
+    {% endif %}
+
+    {% if already_submitted %}
+        <p>
+            {% if is_correct is not None %}
+                {% if is_correct %}
+                    <p style="color: green">Правильно! Вы получаете {{ sabotage.score }} баллов.</p>
+                {% else %}
+                    <p style="color: red">Неправильно! Вы теряете {{ sabotage.score }} баллов.</p>
+                {% endif %}
+            {% else %}
+                <p>
+                    Вы уже отправили решение к этому саботажу. Второй попытки не будет!
+                </p>
+            {% endif %}
+            <a href="{% url "home" %}">Вернуться на главную</a>.
+        </p>
+    {% else %}
+        <form action="{% url "sabotage" contest_id=contest.id sabotage_id=sabotage.id %}" method="POST">
+            {% csrf_token %}
+            {% if error %}
+                <p style="color: red">
+                    {{ error }}
+                </p>
+            {% endif %}
+            <p>
+                <div class="input-group">
+                    <input type="text" name="answer" placeholder="Введите ответ" required>
+                    <button type="submit" class="btn btn-success">Отправить</button>
+                </div>
+            </p>
+        </form>
+    {% endif %}
+{% endblock %}
