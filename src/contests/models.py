@@ -32,8 +32,8 @@ class Problem(models.Model):
     def check_answer(self, output: str) -> (bool, bytes):
         output = output.strip()
         if self.checker == "" or self.checker is None:
-            output = re.sub(r"\s{2,}", " ", output.strip())
-            answer = re.sub(r"\s{2,}", " ", self.answer.strip())
+            output = re.sub(r"\s+", " ", output.strip())
+            answer = re.sub(r"\s+", " ", self.answer.strip())
             return output == answer, b""
 
         name = "".join(random.choice(string.ascii_lowercase) for _ in range(20))
