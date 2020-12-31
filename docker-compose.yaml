@@ -15,8 +15,7 @@ services:
     environment:
       - VIRTUAL_HOST=olymp.lksh.ru
       - VIRTUAL_PORT=8000
-      - LETSENCRYPT_HOST=olymp.lksh.ru
-    depends_on:
+     depends_on:
       - db
   db:
     image: postgres:12.0-alpine
@@ -38,6 +37,8 @@ services:
       - html:/usr/share/nginx/html
       - vhost:/etc/nginx/vhost.d
       - /var/run/docker.sock:/tmp/docker.sock:ro
+    environment:
+      - LETSENCRYPT_HOST=olymp.lksh.ru
     depends_on:
       - web
   nginx-proxy-letsencrypt:
