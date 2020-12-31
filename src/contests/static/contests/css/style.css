@@ -53,7 +53,7 @@ body {
 
 .modal-body h2,
 .modal-body h1 {
-    color:black
+    color:black !important;
 }
 
 .sidebar-button {
