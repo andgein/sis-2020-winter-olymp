@@ -3,12 +3,39 @@ body {
     font-size: 16px;
 }
 
+@media (max-width: 1450px) {
+    body {
+        font-size: 15px;
+    }
+}
+
+@media (max-width: 1200px) {
+    body {
+        font-size: 14px;
+    }
+}
+
 #sidebar {
     min-width: 500px;
     max-width: 500px;
     padding: 20px;
     border-left: 10px solid #1d241f;
 }
+
+@media (max-width: 1450px) {
+    #sidebar {
+        min-width: 400px;
+        max-width: 400px;
+    }
+}
+
+@media (max-width: 1200px) {
+    #sidebar {
+        min-width: 300px;
+        max-width: 300px;
+    }
+}
+
 
 #sidebar h1 {
     font-size: 40px;
@@ -74,6 +101,22 @@ body {
     position: relative;
 }
 
+@media (max-width: 1450px) {
+    .map-wrapper {
+        transform: scale(0.6);
+        transform-origin: 0% 0% 0px;
+        width: 800px;
+    }
+}
+
+@media (max-width: 1200px) {
+    .map-wrapper {
+        transform: scale(0.4);
+        transform-origin: 0% 0% 0px;
+        width: 600px;
+    }
+}
+
 .map-wrapper > .problem-on-map {
     position: absolute;
     display: inline-block;
@@ -114,7 +157,7 @@ body {
 }
 
 .map img {
-    width: 1300px;
+    width: 1200px;
     height: auto;
 }
 
