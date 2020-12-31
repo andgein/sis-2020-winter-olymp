@@ -12,6 +12,9 @@ services:
       - 8000
     env_file:
       - .env
+    environment:
+      - VIRTUAL_HOST=olymp.lksh.ru
+      - VIRTUAL_PORT=8000
     depends_on:
       - db
   db:
