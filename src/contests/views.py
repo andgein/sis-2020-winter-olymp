@@ -193,11 +193,16 @@ def problem(request, contest_id: int, problem_id: int):
                 print(e)
                 return view_contest(request, contest.id, problem.id, error="Это не текстовый файл!")
 
-            is_correct = problem.check_answer(answer)
+            is_correct, log = problem.check_answer(answer)
             if is_correct:
                 score = problem.max_score * (1 - contest.problem_score_coefficient * len(scoring.get_correct_solutions_for_problem(contest, problem)))
             else:
                 score = 0
+
+            try:
+                log = log.decode()
+            except Exception:
+                pass
 
             solution = models.Solution(
                 problem_id=problem.id,
@@ -205,6 +210,7 @@ def problem(request, contest_id: int, problem_id: int):
                 answer=answer,
                 is_correct=is_correct,
                 score=score,
+                log=log,
             )
 
             solution.save()

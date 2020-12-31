@@ -1,4 +1,7 @@
+import random
 import re
+import string
+import subprocess
 
 from django.contrib.auth.models import User
 from django.core import validators
@@ -26,25 +29,27 @@ class Problem(models.Model):
 
     y = models.IntegerField(help_text="Координата", default=0)
 
-    def check_answer(self, output: str) -> bool:
+    def check_answer(self, output: str) -> (bool, bytes):
         output = output.strip()
         if self.checker == "" or self.checker is None:
             output = re.sub(r"\s{2,}", " ", output.strip())
             answer = re.sub(r"\s{2,}", " ", self.answer.strip())
             return output == answer
 
-        try:
-            vars = {}
-            exec(self.checker, vars)
-            check = vars["check"]
-        except Exception as e:
-            print(f"Error on checker exec'ing: {e}")
-            return False
+        name = "".join(random.choice(string.ascii_lowercase) for _ in range(20))
+        with open(f"/tmp/{name}.in", "w") as f:
+            f.write(self.input_data)
+        with open(f"/tmp/{name}.out", "w") as f:
+            f.write(output)
+        with open(f"/tmp/{name}.ans", "w") as f:
+            f.write(self.answer)
 
         try:
-            return check(output, self.answer)
+            p = subprocess.Popen([self.checker, f"/tmp/{name}.in", f"/tmp/{name}.out", f"/tmp/{name}.ans"], stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+            stdout, stderr = p.communicate(timeout=1)
+            return p.returncode == 0, stdout + b"\n\n" + stderr
         except Exception as e:
-            print(f"Error on checking: {e}")
+            print(f"Error on checker executing: {e}")
             return False
 
     def __str__(self):
@@ -89,6 +94,8 @@ class Solution(models.Model):
     is_correct = models.BooleanField()
 
     score = models.IntegerField(help_text="Баллы за ответ")
+
+    log = models.TextField(blank=True, help_text="Лог проверки")
 
     def __str__(self):
         return f"{self.user} + {self.problem} = {self.is_correct}"
