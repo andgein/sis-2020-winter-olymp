@@ -55,6 +55,7 @@
 		$modal.find(".problem-name").text($this.data("problem-index") + ". " + $this.data("problem-name") + " (до " + $this.data("max-score") + " баллов)");
 		$modal.find(".problem-statement").html($this.data("statement"));
 		$modal.find(".problem-input-data-link a").attr("href", $this.data("input-data-link"));
+		$modal.find(".problem-input-data-link").toggle($this.data("has-input"))
 		let $form = $modal.find("form");
 		if ($form) {
 			$form.attr("action", $form.data("url-template").replace("problems/0", "problems/" + $this.data("problem-id")));

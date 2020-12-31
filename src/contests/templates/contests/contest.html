@@ -157,6 +157,7 @@
                  data-problem-name="{{ problem.name }}"
                  data-problem-id="{{ problem.id }}"
                  data-statement="{{ problem.statement }}"
+                 data-has-input="{{ problem.input_data|yesno:"true,false" }}"
                  data-input-data-link="{% url "problem_input" contest_id=contest.id problem_id=problem.id %}"
                  data-max-score="{{ problem.max_score }}"
             >
