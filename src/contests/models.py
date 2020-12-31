@@ -34,7 +34,7 @@ class Problem(models.Model):
         if self.checker == "" or self.checker is None:
             output = re.sub(r"\s{2,}", " ", output.strip())
             answer = re.sub(r"\s{2,}", " ", self.answer.strip())
-            return output == answer
+            return output == answer, b""
 
         name = "".join(random.choice(string.ascii_lowercase) for _ in range(20))
         with open(f"/tmp/{name}.in", "w") as f:
@@ -50,7 +50,7 @@ class Problem(models.Model):
             return p.returncode == 0, stdout + b"\n\n" + stderr
         except Exception as e:
             print(f"Error on checker executing: {e}")
-            return False
+            return False, str(e).decode()
 
     def __str__(self):
         return f"{self.index}. {self.name}"
