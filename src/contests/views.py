@@ -58,6 +58,9 @@ def view_contest(request, contest_id: int, problem_id: Optional[int] = None, is_
 
     user_ids = [u.id for u in contest.users.all() if u.id != request.user.id and not u.is_staff]
 
+    cooldown_users = get_cooldown_from_closed_submissions_users(contest)
+    close_submissions_user_ids = set(user_ids) - set(cooldown_users)
+
     own_closed_submissions = list(request.user.own_sabotages.all().instance_of(models.CloseSubmissionSabotage).prefetch_related("users").order_by("-start_time"))
     own_sabotages = list(request.user.own_sabotages.all().not_instance_of(models.CloseSubmissionSabotage).prefetch_related("users").order_by("-start_time"))
 
@@ -72,7 +75,7 @@ def view_contest(request, contest_id: int, problem_id: Optional[int] = None, is_
         "solved_problems": solved_problems,
 
         "problem_submission_form": forms.SubmitSolutionForm(),
-        "close_submission_form": forms.CloseSubmissionForm(user_ids),
+        "close_submission_form": forms.CloseSubmissionForm(close_submissions_user_ids),
         "create_sabotage_form": forms.CreateSabotageForm(user_ids),
         "close_submission_sabotages": close_submission_sabotages,
 
@@ -113,7 +116,10 @@ def close_submission(request, contest_id: int):
     if not contest.is_running:
         return redirect("contest", contest_id=contest_id)
 
-    form = forms.CloseSubmissionForm([u.id for u in contest.users.all() if u.id != request.user.id and not u.is_staff], data=request.POST)
+    cooldown_users = get_cooldown_from_closed_submissions_users(contest)
+    user_ids = set([u.id for u in contest.users.all() if u.id != request.user.id and not u.is_staff]) - set(cooldown_users)
+
+    form = forms.CloseSubmissionForm(user_ids, data=request.POST)
     if form.is_valid():
         with transaction.atomic():
             available_count = sabotages.get_available_close_submissions_count(contest, request.user)
@@ -125,7 +131,7 @@ def close_submission(request, contest_id: int):
                 contest=contest,
                 problem_id=None,
                 start_time=timezone.now(),
-                finish_time=timezone.now() + datetime.timedelta(minutes=5),
+                finish_time=timezone.now() + datetime.timedelta(minutes=10),
                 score=0,
             )
             sabotage.save()
@@ -134,6 +140,17 @@ def close_submission(request, contest_id: int):
             return redirect("contest", contest_id=contest.id)
 
     return view_contest(request, contest.id, close_submission_error="Выберите команду")
+
+
+def get_cooldown_from_closed_submissions_users(contest):
+    result = []
+    for sabotage in models.CloseSubmissionSabotage.objects.instance_of(models.CloseSubmissionSabotage).filter(
+        contest=contest,
+        finish_time__gte=timezone.now() - datetime.timedelta(minutes=5)
+    ).prefetch_related("users"):
+        result.extend(sabotage.users.all().values_list("id", flat=True))
+
+    return result
 
 
 @login_required
