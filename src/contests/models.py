@@ -50,7 +50,7 @@ class Problem(models.Model):
             return p.returncode == 0, stdout + b"\n\n" + stderr
         except Exception as e:
             print(f"Error on checker executing: {e}")
-            return False, str(e).decode()
+            return False, str(e).encode()
 
     def __str__(self):
         return f"{self.index}. {self.name}"
