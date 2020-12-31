@@ -48,9 +48,8 @@
 		}
 	});
 
-	$(".problem-on-map:not(.solved)").click(function(e) {
-		e.preventDefault();
-		let $this = $(this);
+	window.openProblem = function(problem_id) {
+		let $this = $(".problem-on-map[data-problem-id=" + problem_id+ "]");
 		let $modal = $(".problem-modal");
 		$modal.find(".problem-name").text($this.data("problem-index") + ". " + $this.data("problem-name") + " (до " + $this.data("max-score") + " баллов)");
 		$modal.find(".problem-statement").html($this.data("statement"));
@@ -81,6 +80,12 @@
 			history.pushState({}, "", newHref);
 			$modal.find(".problem-status").remove();
 		});
+	}
+
+	$(".problem-on-map:not(.solved)").click(function(e) {
+		e.preventDefault();
+		let $this = $(this);
+		openProblem($this.data("problem-id"));
 	});
 
 	$(".close-door-button").click(function(e) {

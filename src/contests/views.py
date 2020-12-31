@@ -56,7 +56,7 @@ def view_contest(request, contest_id: int, problem_id: Optional[int] = None, is_
         else:
             close_submission_sabotages[sabotage.problem.id].append(sabotage)
 
-    user_ids = [u.id for u in contest.users.all() if u.id != request.user.id]
+    user_ids = [u.id for u in contest.users.all() if u.id != request.user.id and not u.is_staff]
 
     own_closed_submissions = list(request.user.own_sabotages.all().instance_of(models.CloseSubmissionSabotage).prefetch_related("users").order_by("-start_time"))
     own_sabotages = list(request.user.own_sabotages.all().not_instance_of(models.CloseSubmissionSabotage).prefetch_related("users").order_by("-start_time"))
@@ -113,7 +113,7 @@ def close_submission(request, contest_id: int):
     if not contest.is_running:
         return redirect("contest", contest_id=contest_id)
 
-    form = forms.CloseSubmissionForm([u.id for u in contest.users.all() if u.id != request.user.id], data=request.POST)
+    form = forms.CloseSubmissionForm([u.id for u in contest.users.all() if u.id != request.user.id and not u.is_staff], data=request.POST)
     if form.is_valid():
         with transaction.atomic():
             available_count = sabotages.get_available_close_submissions_count(contest, request.user)
@@ -280,7 +280,7 @@ def create_sabotage(request, contest_id: int):
         if count == 0:
             return view_contest(request, contest.id, create_sabotage_error="У вас не осталось саботажей")
 
-        form = forms.CreateSabotageForm([u.id for u in contest.users.all() if u.id != request.user.id], data=request.POST)
+        form = forms.CreateSabotageForm([u.id for u in contest.users.all() if u.id != request.user.id and not u.is_staff], data=request.POST)
 
         if form.is_valid():
             templates = list(models.SabotageTaskTemplate.objects.all())

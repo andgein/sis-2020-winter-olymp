@@ -30,9 +30,11 @@
                         <p>
                             <select class="multiselect close-submission-team-selection" name="users">
                                 <option value="">Выберите команду-жертву</option>
-                                {% for user in users %}
-                                    <option value="{{ user.id }}">{{ user.first_name|default:user.username }}</option>
-                                {% endfor %}
+                                {% with close_submission_form.fields|get_item:"users" as field %}
+                                    {% for user in field.queryset %}
+                                        <option value="{{ user.id }}">{{ user.first_name|default:user.username }}</option>
+                                    {% endfor %}
+                                {% endwith %}
                             </select>
                         </p>
                         <button type="submit" class="btn btn-danger">Закрыть двери</button>
@@ -64,9 +66,11 @@
                         {% endif %}
                         <p>
                             <select class="multiselect sabotage-team-selection" multiple="multiple" data-maximum="{{ contest.max_sabotage_users }}" name="users">
-                                {% for user in users %}
-                                    <option value="{{ user.id }}">{{ user.first_name|default:user.username }}</option>
-                                {% endfor %}
+                                {% with create_sabotage_form.fields|get_item:"users" as field %}
+                                    {% for user in field.queryset %}
+                                        <option value="{{ user.id }}">{{ user.first_name|default:user.username }}</option>
+                                    {% endfor %}
+                                {% endwith %}
                             </select>
                         </p>
                         <button type="submit" class="btn btn-danger">Устроить саботаж</button>
@@ -232,7 +236,7 @@
     {% if selected_problem %}
         <script type="text/javascript">
             $(document).ready(function() {
-               $(".problem-on-map[data-problem-id={{ selected_problem.id }}]").click();
+                openProblem({{ selected_problem.id }});
             });
         </script>
     {% endif %}
