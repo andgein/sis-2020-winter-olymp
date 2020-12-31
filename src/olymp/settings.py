@@ -84,9 +84,8 @@ WSGI_APPLICATION = 'olymp.wsgi.application'
 # https://docs.djangoproject.com/en/3.1/ref/settings/#databases
 
 DATABASES = {
-    'default': env.db("DATABASE_URL", default="sqlite://" + (BASE_DIR / "db.sqlite3").as_posix())
+    'default': env.db("DATABASE_URL", default="sqlite:///" + (BASE_DIR / "db.sqlite3").as_posix())
 }
-
 
 # Password validation
 # https://docs.djangoproject.com/en/3.1/ref/settings/#auth-password-validators

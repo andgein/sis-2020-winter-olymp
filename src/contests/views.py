@@ -1,5 +1,6 @@
 import collections
 import datetime
+import random
 from typing import Optional
 from django.conf import settings
 import os.path
@@ -282,9 +283,11 @@ def create_sabotage(request, contest_id: int):
         form = forms.CreateSabotageForm([u.id for u in contest.users.all() if u.id != request.user.id], data=request.POST)
 
         if form.is_valid():
+            templates = list(models.SabotageTaskTemplate.objects.all())
+            template = random.choice(templates)
             sabotage = models.SolveTaskSabotage(
-                statement="Рандомное условие саботажа",
-                correct_answer="123",
+                statement=template.statement,
+                correct_answer=template.correct_answer,
                 user=request.user,
                 contest=contest,
                 start_time=timezone.now(),

@@ -48,3 +48,8 @@ class AbstractSabotageAdmin(PolymorphicParentModelAdmin):
 class SabotageSolutionAdmin(ModelAdmin):
     list_display = ("id", "contest", "sabotage", "user", "answer", "is_correct")
     list_filter = ("contest", "is_correct")
+
+
+@register(models.SabotageTaskTemplate)
+class SabotageTaskTemplateAdmin(ModelAdmin):
+    list_display = ("id", "statement", "correct_answer")

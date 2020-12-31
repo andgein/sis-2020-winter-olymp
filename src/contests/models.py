@@ -137,3 +137,9 @@ class SabotageSolution(models.Model):
     answer = models.TextField(blank=True, help_text="Ответ")
 
     is_correct = models.BooleanField()
+
+
+class SabotageTaskTemplate(models.Model):
+    statement = models.TextField(help_text="Условие задачи")
+
+    correct_answer = models.TextField(help_text="Правильный ответ")
