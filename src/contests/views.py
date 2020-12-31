@@ -309,7 +309,7 @@ def monitor(request, contest_id: int):
     if sabotage := sabotages.get_current_sabotage_for(contest, request.user):
         return redirect("sabotage", contest_id=contest_id, sabotage_id=sabotage.id)
 
-    users = list(contest.users.all())
+    users = list(contest.users.filter(is_staff=False))
     problems = list(contest.problems.all())
     user_score = collections.defaultdict(int)
     user_problem_score = collections.defaultdict(lambda: collections.defaultdict(int))
