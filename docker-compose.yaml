@@ -15,6 +15,7 @@ services:
     environment:
       - VIRTUAL_HOST=olymp.lksh.ru
       - VIRTUAL_PORT=8000
+      - LETSENCRYPT_HOST=olymp.lksh.ru
     depends_on:
       - db
   db:
