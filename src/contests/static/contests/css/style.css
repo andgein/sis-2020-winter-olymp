@@ -84,6 +84,10 @@ body {
     margin: 40px -20px 40px -43px;
 }
 
+#content {
+    min-width: 100%;
+}
+
 #content,
 #content h2,
 #content h1 {
