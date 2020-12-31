@@ -1,7 +1,9 @@
 {% extends "contests/base.html" %}
 
 {% block body %}
-    <h1><span style="text-decoration: line-through;">Among us</span> Новогодняя олимпиада ЛКШ</h1>
+    <h1>
+        Здесь одна новогодняя олимпиада среди нас
+    </h1>
     <form action="{% url "login" %}" method="POST">
         {% csrf_token %}
         <p>
